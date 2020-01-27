@@ -50,13 +50,13 @@ struct ipheader {
 void got_packet( u_char *args, const struct pcap_pkthdr *header,
                     const u_char *packet)
 {
-    printf("Got a packet\n");
+    printf("Captured packet\n");
     struct ethheader *eth = (struct ethheader *)packet;
 
-    if (ntohs(eth->ether_type) == 0x800){
+    if (ntohs(eth->ether_type) == 0x800){     // 0x800 ethernet type IP
 	    struct ipheader *ip = (struct ipheader *)(packet + sizeof(struct ethheader));
-	    printf("		Source: %s\n", inet_ntoa(ip->iph_sourceip));
-	    printf("		Destination: %s\n", inet_ntoa(ip->iph_destip));
+	    printf("		source: %s\n", inet_ntoa(ip->iph_sourceip));
+	    printf("		dest  : %s\n", inet_ntoa(ip->iph_destip));
     }
 }
 
@@ -68,9 +68,7 @@ int main(){
     bpf_u_int32 net;
 
   /**
-   * Step 1: Open live pcap sessionon NIC with name eth3
-   *          students need to change "eth3" to the name 
-   *          found on their own machines, using ifconfig
+   * Step 1: Open live pcap sessionon NIC with enp03
    */
   handle = pcap_open_live("enp0s3", BUFSIZ, 1, 1000, errbuf);
 
