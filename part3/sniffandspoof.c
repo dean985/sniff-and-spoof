@@ -143,7 +143,8 @@ void got_packet( u_char *args, const struct pcap_pkthdr *header, const u_char *p
         printf("   Dest port: %d\n", (int)(ntohs(tcp->tcp_sport)));
         printf("   Src port : %d\n", (int)(ntohs(tcp->tcp_dport)));
         
-        size_t PACKET_LEN = header->len; 
+        //size_t PACKET_LEN = header->len; 
+        size_t PACKET_LEN = 100;
         char buff[PACKET_LEN];
         memset(buff, 0, PACKET_LEN);
         memcpy((char *)buff, ip, ntohs(ip->iph_len));
