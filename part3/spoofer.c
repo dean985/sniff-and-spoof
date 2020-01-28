@@ -76,25 +76,10 @@ void send_packet( struct ipheader *ip){
 
 int main (){
 
-    // struct sockaddr_in sin;
-    // char *str = "   MESSAGE\n";
-    // // create socket
-    // int sck = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-    // // filling info about the destenation
-    // memset((char *)&sin, 0, sizeof(sin));
-    // sin.sin_addr.s_addr = inet_addr("10.0.2.4");
-    // sin.sin_family = AF_INET;
-    // sin.sin_port = htons(5000);
+    char *ipdest;
+    char *ipsrc;
 
-    // //sending
-    // sendto(sck, str, strlen(str), 0, (struct sockaddr*)&sin, sizeof(sin));
-    // close(sck);
-
-    printf("+++++++++++++++++++++++++++++\n"
-           "|         Spoofing          |\n"
-           "|                           |\n"
-           "+++++++++++++++++++++++++++++");
     char buff[1000];
     memset(buff, 0 ,1000);
     
@@ -102,10 +87,7 @@ int main (){
     
     struct icmpheader *icmp = (struct icmpheader*)(buff + sizeof(struct ipheader));
     icmp->icmp_type = 8;                // ping request
-    // checksum for integrity of the message
-//    icmp->icmp_chksum = 0;
-//    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(struct icmpheader));
-
+   
     ////////// IP header config
     struct ipheader *ip = (struct ipheader *)(buff);
     ip->iph_len = htons(sizeof(struct ipheader) + sizeof(struct icmpheader));
@@ -129,9 +111,19 @@ int main (){
 
     // finally sending the packet
     sendto(sck, ip , ntohs(ip->iph_len), 0, (struct sockaddr *)(&sin), sizeof(sin));
-
+    inet_ntop(AF_INET, &(sin.sin_addr), ipdest, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(ip->iph_sourceip), ipsrc, INET_ADDRSTRLEN );
     close(sck);
     
+
+
+     printf("+++++++++++++++++++++++++++++\n"
+           "|          Spoofing           |\n"
+           "|     The ping was sent to:   |\n"
+           "|       %s       |\n"
+           "|        Sent From:           |\n"
+           "|       %s           |\n"
+           "+++++++++++++++++++++++++++++\n", ipdest, ipsrc);
 
     return 0;
 }
