@@ -117,8 +117,7 @@ int main (){
    
     //checksum
     icmp->icmp_chksum = 0;
-    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, 
-                                 sizeof(struct icmpheader));
+    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(struct icmpheader));
 
 
 
@@ -126,8 +125,8 @@ int main (){
     struct ipheader *ip = (struct ipheader *)(buff);
     ip->iph_len = htons(sizeof(struct ipheader) + sizeof(struct icmpheader));
     ip->iph_protocol = IPPROTO_ICMP;
-    ip->iph_destip.s_addr = inet_addr("172.217.171.206");
-    ip->iph_sourceip.s_addr = inet_addr("12.23.45.56");
+    ip->iph_destip.s_addr = inet_addr("160.153.129.23");
+    ip->iph_sourceip.s_addr = inet_addr("10.0.2.5");
     ip->iph_ttl = 15;
     ip->iph_ihl = 5;
     ip->iph_ver = 4;
@@ -156,7 +155,7 @@ int main (){
            "|     The ping was sent to:   |\n"
            "|       %s       |\n"
            "|        Sent From:           |\n"
-           "|       %s           |\n"
+           "|       %s              |\n"
            "+++++++++++++++++++++++++++++\n", ipdest, ipsrc);
 
     return 0;
