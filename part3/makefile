@@ -5,3 +5,6 @@ sniffer: sniffer.c
 
 spoofer: spoofer.c
 	gcc spoofer.c -o spoofer
+	
+sns: sniffandspoof.c
+	gcc sniffandspoof.c -o sniffandspoof -lpcap
