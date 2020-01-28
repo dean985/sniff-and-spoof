@@ -77,8 +77,8 @@ void got_packet( u_char *args, const struct pcap_pkthdr *header,
     struct ethheader *eth = (struct ethheader *)packet;
 
     if (ntohs(eth->ether_type) == 0x800){     // 0x800 ethernet type IP
-	    struct ipheader *ip = (struct ipheader *)(packet + sizeof(struct ethheader));
-      struct tcpheader *tcp = (struct tcpheader)(packet +sizeof(struct ethheader) + IP_HL(ip)*4;);
+	    struct ipheader *ip = (struct ipheader*)(packet + sizeof(struct ethheader));
+      struct tcpheader *tcp = (struct tcpheader*)(packet +sizeof(struct ethheader) + IP_HL(ip)*4;);
 	    printf("		source: %s\n", inet_ntoa(ip->iph_sourceip));
 	    printf("		dest  : %s\n", inet_ntoa(ip->iph_destip));
 
