@@ -23,7 +23,6 @@ struct ethheader {
 
 
 
-
 /**
  * Struct of an internet header
  * ihl - ip header length
@@ -47,6 +46,30 @@ struct ipheader {
   struct  in_addr    iph_destip;   
 };
 
+
+/* TCP Header */
+struct tcpheader {
+    u_short tcp_sport;               /* source port */
+    u_short tcp_dport;               /* destination port */
+    u_int   tcp_seq;                 /* sequence number */
+    u_int   tcp_ack;                 /* acknowledgement number */
+    u_char  tcp_offx2;               /* data offset, rsvd */
+    #define TH_OFF(th)      (((th)->tcp_offx2 & 0xf0) >> 4)
+    u_char  tcp_flags;
+    #define TH_FIN  0x01
+    #define TH_SYN  0x02
+    #define TH_RST  0x04
+    #define TH_PUSH 0x08
+    #define TH_ACK  0x10
+    #define TH_URG  0x20
+    #define TH_ECE  0x40
+    #define TH_CWR  0x80
+    #define TH_FLAGS        (TH_FIN|TH_SYN|TH_RST|TH_ACK|TH_URG|TH_ECE|TH_CWR)
+    u_short tcp_win;                 /* window */
+    u_short tcp_sum;                 /* checksum */
+    u_short tcp_urp;                 /* urgent pointer */
+};
+
 void got_packet( u_char *args, const struct pcap_pkthdr *header,
                     const u_char *packet)
 {
@@ -55,16 +78,35 @@ void got_packet( u_char *args, const struct pcap_pkthdr *header,
 
     if (ntohs(eth->ether_type) == 0x800){     // 0x800 ethernet type IP
 	    struct ipheader *ip = (struct ipheader *)(packet + sizeof(struct ethheader));
+      struct tcpheader *tcp = (struct tcpheader)(packet +sizeof(struct tcpheader));
 	    printf("		source: %s\n", inet_ntoa(ip->iph_sourceip));
 	    printf("		dest  : %s\n", inet_ntoa(ip->iph_destip));
+
+
+      if (ip->iph_protocol == IPPROTO_ICMP){
+        printf("   Protocol- ICMP\n");
+      }
+      if (ip->iph_protocol == IPPROTO_TCP){
+        printf("   Protocol- TCP\n");
+        printf("   Port Number: %s", inet_ntoa(tcp->dport));        /// HELLO I AM HERE
+      }
     }
+    
 }
 
 int main(){
+
+   printf("+-------------------------------------------------+\n"
+          "|                Computer Networks                |\n"
+          "|           Packet Sniffing and Spoofing          |\n"
+          "|                                                 |\n"
+          "+-------------------------------------------------+\n\n"        
+   );
     pcap_t *handle;
     char errbuf[PCAP_ERRBUF_SIZE];
     struct bpf_program fp;
-    char filter_exp[] = "ip proto icmp";
+    //char filter_exp[] = "ip proto icmp";               //For 2.1b first question
+    char filter_exp[] = "ip proto tcp portrange 10-100"; //For 2.1b second question
     bpf_u_int32 net;
 
   /**
