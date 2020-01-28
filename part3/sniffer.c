@@ -12,8 +12,7 @@
 #include <net/ethernet.h>
 #include <stdio.h>
 
-#define IP_HL(ip)               (((ip)->ip_vhl) & 0x0f)
-#define IP_V(ip)                (((ip)->ip_vhl) >> 4)
+
 
 /**
  * Struct of an ethernet header
@@ -49,6 +48,8 @@ struct ipheader {
   struct  in_addr    iph_destip;   
 };
 
+#define IP_HL(ip)               (((ip)->iph_ihl) & 0x0f)
+// #define IP_V(ip)                (((ip)->ip_vhl) >> 4)
 
 /* TCP Header */
 struct tcpheader {
@@ -81,7 +82,7 @@ void got_packet( u_char *args, const struct pcap_pkthdr *header,
 
     if (ntohs(eth->ether_type) == 0x800){     // 0x800 ethernet type IP
 	    struct ipheader *ip = (struct ipheader*)(packet + sizeof(struct ethheader));
-      struct tcpheader *tcp = (struct tcpheader*)(packet +sizeof(struct ethheader) + IP_HL(ip)*4;);
+      struct tcpheader *tcp = (struct tcpheader*)(packet +sizeof(struct ethheader) + IP_HL(ip)*4);
 	    printf("		source: %s\n", inet_ntoa(ip->iph_sourceip));
 	    printf("		dest  : %s\n", inet_ntoa(ip->iph_destip));
 
@@ -91,8 +92,8 @@ void got_packet( u_char *args, const struct pcap_pkthdr *header,
       }
       if (ip->iph_protocol == IPPROTO_TCP){
         printf("   Protocol- TCP\n");
-        printf("   Dest port: %s\n", ntohs(tcp->tcp_sport));
-        printf("   Src port : %s\n", ntohs(tcp->tcp_dport));
+        printf("   Dest port: %d\n", (int)(ntohs(tcp->tcp_sport)));
+        printf("   Src port : %d\n", (int)(ntohs(tcp->tcp_dport)));
       }
     }
     
