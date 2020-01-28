@@ -12,6 +12,9 @@
 #include <net/ethernet.h>
 #include <stdio.h>
 
+#define IP_HL(ip)               (((ip)->ip_vhl) & 0x0f)
+#define IP_V(ip)                (((ip)->ip_vhl) >> 4)
+
 /**
  * Struct of an ethernet header
  */
