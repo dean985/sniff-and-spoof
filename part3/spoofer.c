@@ -24,8 +24,8 @@
 
 /* ICMP Header  */
 struct icmpheader {
-  unsigned char icmp_type; // ICMP message type
-  unsigned char icmp_code; // Error code
+  unsigned char icmp_type;        // ICMP message type
+  unsigned char icmp_code;        // Error info
   unsigned short int icmp_chksum; //Checksum for ICMP Header and data
   unsigned short int icmp_id;     //Used for identifying request
   unsigned short int icmp_seq;    //Sequence number
@@ -54,7 +54,7 @@ struct ipheader {
 };
 
 
-void send_ip_packet( struct ipheader *ip){
+void send_packet( struct ipheader *ip){
     struct sockaddr_in sin;
     int en = 1;
 
@@ -76,22 +76,62 @@ void send_ip_packet( struct ipheader *ip){
 
 int main (){
 
+    // struct sockaddr_in sin;
+    // char *str = "   MESSAGE\n";
+    // // create socket
+    // int sck = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+    // // filling info about the destenation
+    // memset((char *)&sin, 0, sizeof(sin));
+    // sin.sin_addr.s_addr = inet_addr("10.0.2.4");
+    // sin.sin_family = AF_INET;
+    // sin.sin_port = htons(5000);
+
+    // //sending
+    // sendto(sck, str, strlen(str), 0, (struct sockaddr*)&sin, sizeof(sin));
+    // close(sck);
+
+    printf("+++++++++++++++++++++++++++++\n",
+           "|         Spoofing          |\n",
+           "|                           |\n"
+           "+++++++++++++++++++++++++++++");
+    char buff[1000];
+    memset(buff, 0 ,1000);
+    
+    /////////// ICMP handling and config
+    
+    struct icmpheader *icmp = (struct icmpheader*)(buff + sizeof(struct ipheader));
+    icmp->icmp_type = 8;                // ping request
+    // checksum for integrity of the message
+    icmp->icmp_chksum = 0;
+    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(struct icmpheader));
+
+    ////////// IP header config
+    struct ipheader *ip = (struct ipheader *)(buff);
+    ip->iph_len = htons(sizeof(struct ipheader) + sizeof(struct icmpheader));
+    ip->iph_protocol = IPPROTO_ICMP;
+    ip->iph_destip.s_addr = inet_addr("172.217.171.206");
+    ip->iph_sourceip.s_addr = inet_addr("12.23.45.56");
+    ip->iph_ttl = 15;
+    ip->iph_ihl = 5;
+    ip->iph_ver = 4;
+
+    /////////////Sending the packet
     struct sockaddr_in sin;
-    char *str = "   MESSAGE\n";
-    // create socket
-    int sck = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    int en = 1;
 
-    // filling info about the destenation
-    memset((char *)&sin, 0, sizeof(sin));
-    sin.sin_addr.s_addr = inet_addr("10.0.2.4");
+    int sck = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);         //socket creation
+    setsockopt(sck, IPPROTO_IP, IP_HDRINCL, &en, sizeof(en)); // set socket FD's optionn
+
+    // Now filling info about the destination
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(5000);
+    sin.sin_addr = ip->iph_destip;
 
-    //sending
-    sendto(sck, str, strlen(str), 0, (struct sockaddr*)&sin, sizeof(sin));
+    // finally sending the packet
+    sendto(sck, ip , ntohs(ip->iph_len), 0, (struct sockaddr *)(&sin), sizeof(sin));
+
     close(sck);
-
-
+    
 
     return 0;
 }
