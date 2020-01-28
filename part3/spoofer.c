@@ -91,8 +91,8 @@ int main (){
     // sendto(sck, str, strlen(str), 0, (struct sockaddr*)&sin, sizeof(sin));
     // close(sck);
 
-    printf("+++++++++++++++++++++++++++++\n",
-           "|         Spoofing          |\n",
+    printf("+++++++++++++++++++++++++++++\n"
+           "|         Spoofing          |\n"
            "|                           |\n"
            "+++++++++++++++++++++++++++++");
     char buff[1000];
@@ -103,8 +103,8 @@ int main (){
     struct icmpheader *icmp = (struct icmpheader*)(buff + sizeof(struct ipheader));
     icmp->icmp_type = 8;                // ping request
     // checksum for integrity of the message
-    icmp->icmp_chksum = 0;
-    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(struct icmpheader));
+//    icmp->icmp_chksum = 0;
+//    icmp->icmp_chksum = in_cksum((unsigned short *)icmp, sizeof(struct icmpheader));
 
     ////////// IP header config
     struct ipheader *ip = (struct ipheader *)(buff);
